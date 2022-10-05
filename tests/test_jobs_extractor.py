@@ -16,7 +16,7 @@ class VercelMockJobsExtractor(JobsScaperBase):
     def _create_job_url(self, job_path: str) -> str:
         return self.url + job_path.replace('/careers', '')
 
-    def _scrape_jobs(self, html: str) -> tuple[str, str]:
+    def _scrape_job_infos(self, html: str) -> tuple[str, str, str]:
         """
         Given the html of the vercel careers page, extract the title and url of associated job.
         """
@@ -24,16 +24,21 @@ class VercelMockJobsExtractor(JobsScaperBase):
         from bs4.element import Tag
 
         soup = BeautifulSoup(html, 'html.parser')
-        jobs = soup.select("a[class^=job-card_jobCard]")
+        job_objects = soup.select("a[class^=job-card_jobCard]")
 
-        def extract_title_url(tag: Tag):
+        def extract_title_location_url(tag: Tag):
             title = tag.select('h3')
             assert len(title) == 1
-            url = tag.attrs['href']
-            return title[0].text.strip(), url.strip()
+            title = title[0].text.strip()
 
-        titles_urls = [extract_title_url(x) for x in jobs]
-        return titles_urls
+            location = tag.select('h4')
+            assert len(location) == 1
+            location = location[0].text.strip()
+
+            url = tag.attrs['href'].strip()
+            return title, location, url
+
+        return [extract_title_location_url(x) for x in job_objects]
 
     def _scrape_description(self, html: str) -> list[Job]:
         from bs4 import BeautifulSoup
@@ -42,7 +47,6 @@ class VercelMockJobsExtractor(JobsScaperBase):
 
 
 def test_mock_vercel(httpserver: HTTPServer):
-
     ####
     # Set up mock server using html files in `vercel_clone`
     ####
@@ -63,7 +67,7 @@ def test_mock_vercel(httpserver: HTTPServer):
     url = httpserver.url_for("/careers")
     extractor = VercelMockJobsExtractor(url)
     jobs = extractor.scrape()
-    str([x.title for x in jobs])
+    str([x.location for x in jobs])
 
     expected_titles = [
         'Analytics Engineer',
@@ -122,6 +126,64 @@ def test_mock_vercel(httpserver: HTTPServer):
         'Visual Designer, Brand Marketing'
     ]
     assert expected_titles == [x.title for x in jobs]
+
+    expected_locations = [
+        'United States, Canada',
+        'United States',
+        'United States',
+        'Australia',
+        'Germany, United Kingdom',
+        'United States, Germany, United Kingdom',
+        'United States, Germany, United Kingdom',
+        'United States',
+        'United States',
+        'United States',
+        'United States',
+        'United States',
+        'Australia',
+        'Germany, United Kingdom',
+        'United States',
+        'United States',
+        'United States',
+        'United States',
+        'United States, United Kingdom',
+        'Australia',
+        'Germany, United Kingdom',
+        'United States',
+        'Australia',
+        'Germany, United Kingdom',
+        'United States',
+        'United States',
+        'Australia',
+        'United States',
+        'Germany, United Kingdom',
+        'United States',
+        'United States',
+        'United States',
+        'Australia',
+        'Germany, United Kingdom',
+        'United States',
+        'United States',
+        'United States',
+        'United States',
+        'United States',
+        'Germany, United Kingdom',
+        'United States',
+        'United States',
+        'Germany, United Kingdom',
+        'United States, Germany, United Kingdom',
+        'United States',
+        'United States',
+        'Germany, United Kingdom',
+        'United States',
+        'United States',
+        'Germany, United Kingdom',
+        'Germany, United Kingdom',
+        'United States, Germany, United Kingdom',
+        'United States',
+        'United States'
+    ]
+    assert expected_locations == [x.location for x in jobs]
 
     expected_urls = [
         'http://127.0.0.1:8000/careers/analytics-engineer-amer-4486497004',
