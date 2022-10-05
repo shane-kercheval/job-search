@@ -5,7 +5,11 @@ from source.jobs_extractors import scrape_vercel
 
 def test_mock_vercel(httpserver: HTTPServer):
     ####
-    # Set up mock server using html files in `vercel_clone`
+    # Set up mock server using html files in `vercel_clone`; I've copied the files locally so
+    # we can test on local http-server. If the html ever changes on Vercel's website, consider
+    # retaining the current function so that we have an example that is tested from local files.
+    # The main advantage is that we can test changes more quickly (e.g. adding additional fields
+    # to JobInfo object) compared with hitting external server each time.)
     ####
     def get_html(path: str) -> str:
         with open(path, 'r') as handle:
