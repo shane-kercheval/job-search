@@ -1,0 +1,40 @@
+name: job-search
+channels:
+  - defaults
+dependencies:
+  - attrs=21.4.0=pyhd3eb1b0_0
+  - beautifulsoup4=4.11.1=py310hca03da5_0
+  - bs4=4.11.1=hd3eb1b0_0
+  - bzip2=1.0.8=h620ffc9_4
+  - ca-certificates=2022.07.19=hca03da5_0
+  - certifi=2022.9.14=py310hca03da5_0
+  - coverage=6.3.2=py310h1a28f6b_0
+  - flake8=4.0.1=pyhd3eb1b0_1
+  - importlib-metadata=4.11.3=py310hca03da5_0
+  - iniconfig=1.1.1=pyhd3eb1b0_0
+  - libcxx=14.0.6=h848a8c0_0
+  - libffi=3.4.2=hc377ac9_4
+  - mccabe=0.7.0=pyhd3eb1b0_0
+  - ncurses=6.3=h1a28f6b_3
+  - openssl=1.1.1q=h1a28f6b_0
+  - packaging=21.3=pyhd3eb1b0_0
+  - pip=22.2.2=py310hca03da5_0
+  - pluggy=1.0.0=py310hca03da5_1
+  - py=1.11.0=pyhd3eb1b0_0
+  - pycodestyle=2.8.0=pyhd3eb1b0_0
+  - pyflakes=2.4.0=pyhd3eb1b0_0
+  - pyparsing=3.0.9=py310hca03da5_0
+  - pytest=7.1.2=py310hca03da5_0
+  - python=3.10.4=hbdb9e5c_0
+  - readline=8.1.2=h1a28f6b_1
+  - setuptools=63.4.1=py310hca03da5_0
+  - soupsieve=2.3.1=pyhd3eb1b0_0
+  - sqlite=3.39.3=h1058600_0
+  - tk=8.6.12=hb8d0fd4_0
+  - tomli=2.0.1=py310hca03da5_0
+  - tzdata=2022c=h04d1e81_0
+  - wheel=0.37.1=pyhd3eb1b0_0
+  - xz=5.2.6=h1a28f6b_0
+  - zipp=3.8.0=py310hca03da5_0
+  - zlib=1.2.12=h5a0b063_3
+prefix: /Users/shanekercheval/opt/miniconda3/envs/job-search
