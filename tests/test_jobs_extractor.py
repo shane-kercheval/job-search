@@ -1,7 +1,8 @@
 import os
+import requests
 from pytest_httpserver import HTTPServer
 
-from source.jobs_extractor_base import JobsScaperBase, Job
+from source.jobs_extractor_base import JobsScaperBase, JobInfo
 
 
 class VercelMockJobsExtractor(JobsScaperBase):
@@ -16,7 +17,7 @@ class VercelMockJobsExtractor(JobsScaperBase):
     def _create_job_url(self, job_path: str) -> str:
         return self.url + job_path.replace('/careers', '')
 
-    def _scrape_job_infos(self, html: str) -> tuple[str, str, str]:
+    def _scrape_job_infos(self, html: str) -> list[JobInfo]:
         """
         Given the html of the vercel careers page, extract the title and url of associated job.
         """
@@ -26,24 +27,30 @@ class VercelMockJobsExtractor(JobsScaperBase):
         soup = BeautifulSoup(html, 'html.parser')
         job_objects = soup.select("a[class^=job-card_jobCard]")
 
-        def extract_title_location_url(tag: Tag):
+        def scrape_description(html: str) -> str:
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(html, 'html.parser')
+            return str(soup.select("section[class^=details_container]")[0].contents[0])
+
+        def extract_job_info(tag: Tag) -> JobInfo:
             title = tag.select('h3')
             assert len(title) == 1
-            title = title[0].text.strip()
-
             location = tag.select('h4')
             assert len(location) == 1
-            location = location[0].text.strip()
 
-            url = tag.attrs['href'].strip()
-            return title, location, url
+            job_url = self._create_job_url(job_path=tag.attrs['href'].strip())
+            resp = requests.get(url=job_url)
+            assert resp.status_code == 200
+            description = scrape_description(resp.text)
 
-        return [extract_title_location_url(x) for x in job_objects]
+            return JobInfo(
+                title=title[0].text.strip(),
+                location=location[0].text.strip(),
+                url=job_url,
+                description=description
+            )
 
-    def _scrape_description(self, html: str) -> list[Job]:
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(html, 'html.parser')
-        return str(soup.select("section[class^=details_container]")[0].contents[0])
+        return [extract_job_info(x) for x in job_objects]
 
 
 def test_mock_vercel(httpserver: HTTPServer):
