@@ -7,8 +7,8 @@ linting:
 
 tests: linting
 	rm -f tests/test_files/log.log
-	#python -m unittest discover tests
-	#pytest tests
+	# python -m unittest discover tests
+	# python -m pytest tests
 	coverage run -m pytest tests
 	coverage html
 
