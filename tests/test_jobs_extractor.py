@@ -1,6 +1,6 @@
 import os
 from pytest_httpserver import HTTPServer
-from source.jobs_extractor_base import scrape_vercel
+from source.jobs_extractors import scrape_vercel
 
 
 def test_mock_vercel(httpserver: HTTPServer):
