@@ -38,17 +38,16 @@ def scrape_vercel(url='https://vercel.com/careers') -> list[JobInfo]:
         soup_desc = BeautifulSoup(html, 'html.parser')
         return str(soup_desc.select("section[class^=details_container]")[0].contents[0])
 
-    def extract_job_info(tag: Tag) -> JobInfo:
+    def extract_job_info(job_object: Tag) -> JobInfo:
         """
         This function takes an individual job listing on the careers page and extracts the
         information, returning a JobInfo object.
         """
-        title = tag.select('h3')
+        title = job_object.select('h3')
         assert len(title) == 1
-        location = tag.select('h4')
+        location = job_object.select('h4')
         assert len(location) == 1
-
-        job_url = create_job_url(job_path=tag.attrs['href'].strip())
+        job_url = create_job_url(job_path=job_object.attrs['href'].strip())
         resp = requests.get(url=job_url)
         assert resp.status_code == 200
         description = scrape_description(resp.text)
