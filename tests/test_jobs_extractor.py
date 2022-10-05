@@ -1,56 +1,6 @@
 import os
-import requests
 from pytest_httpserver import HTTPServer
-
-from source.jobs_extractor_base import JobsScaperBase, JobInfo
-
-
-class VercelMockJobsExtractor(JobsScaperBase):
-    def __init__(self, url: str) -> None:
-        super().__init__()
-        self._url = url
-
-    @property
-    def url(self) -> str:
-        return self._url
-
-    def _create_job_url(self, job_path: str) -> str:
-        return self.url + job_path.replace('/careers', '')
-
-    def _scrape_job_infos(self, html: str) -> list[JobInfo]:
-        """
-        Given the html of the vercel careers page, extract the title and url of associated job.
-        """
-        from bs4 import BeautifulSoup
-        from bs4.element import Tag
-
-        soup = BeautifulSoup(html, 'html.parser')
-        job_objects = soup.select("a[class^=job-card_jobCard]")
-
-        def scrape_description(html: str) -> str:
-            from bs4 import BeautifulSoup
-            soup = BeautifulSoup(html, 'html.parser')
-            return str(soup.select("section[class^=details_container]")[0].contents[0])
-
-        def extract_job_info(tag: Tag) -> JobInfo:
-            title = tag.select('h3')
-            assert len(title) == 1
-            location = tag.select('h4')
-            assert len(location) == 1
-
-            job_url = self._create_job_url(job_path=tag.attrs['href'].strip())
-            resp = requests.get(url=job_url)
-            assert resp.status_code == 200
-            description = scrape_description(resp.text)
-
-            return JobInfo(
-                title=title[0].text.strip(),
-                location=location[0].text.strip(),
-                url=job_url,
-                description=description
-            )
-
-        return [extract_job_info(x) for x in job_objects]
+from source.jobs_extractor_base import scrape_vercel
 
 
 def test_mock_vercel(httpserver: HTTPServer):
@@ -72,9 +22,7 @@ def test_mock_vercel(httpserver: HTTPServer):
         httpserver.expect_request(mock_path).respond_with_data(job_html)
 
     url = httpserver.url_for("/careers")
-    extractor = VercelMockJobsExtractor(url)
-    jobs = extractor.scrape()
-    str([x.location for x in jobs])
+    jobs = scrape_vercel(url=url)
 
     expected_titles = [
         'Analytics Engineer',
@@ -249,3 +197,5 @@ def test_mock_vercel(httpserver: HTTPServer):
         'http://127.0.0.1:8000/careers/visual-designer-brand-marketing-us-4536670004'
     ]
     assert expected_urls == [x.url for x in jobs]
+
+    assert all([x.description is not None for x in jobs])

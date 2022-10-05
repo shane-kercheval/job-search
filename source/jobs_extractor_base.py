@@ -1,6 +1,7 @@
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import requests
+from bs4 import BeautifulSoup
+from bs4.element import Tag
 
 
 @dataclass
@@ -11,46 +12,40 @@ class JobInfo:
     description: str = None
 
 
-class JobsScaperBase(ABC):
-    @property
-    @abstractmethod
-    def url(self) -> str:
-        ...
+def scrape_vercel(url='https://vercel.com/careers') -> list[JobInfo]:
+    """
+    This function scrapes the job information from vercel.com and returns a list of JobInfo
+    objects.
+    """
+    response_careers = requests.get(url=url)
+    assert response_careers.status_code == 200
 
-    def _create_job_url(self, job_path: str) -> str:
-        """
-        This function takes the job_path of an individual job (extracted from the HTML; which could
-        be either a complete/absolute url, or could be a relative path from the corresponding jobs
-        page, and returns the complete url to the specific job corresponding to job_path.
-        """
-        return self.url + job_path
+    soup_careers = BeautifulSoup(response_careers.text, 'html.parser')
+    job_objects = soup_careers.select("a[class^=job-card_jobCard]")
 
-    @abstractmethod
-    def _scrape_job_infos(self, html: str) -> list[JobInfo]:
-        """
-        This function takes the HTML from the jobs/career page (which has >=1 job posting) and
-        extracts the job information and returns a list of Job objects.
+    def create_job_url(job_path: str) -> str:
+        return url + job_path.replace('/careers', '')
 
-        Args:
-            html:
-                the HTML extracted from the corresponding careers/jobs page for the corresponding
-                company.
-        """
-        ...
+    def scrape_description(html: str) -> str:
+        soup_desc = BeautifulSoup(html, 'html.parser')
+        return str(soup_desc.select("section[class^=details_container]")[0].contents[0])
 
-    # @abstractmethod
-    # def _scrape_description(self, html: str) -> str:
-    #     """
-    #     This function takes the HTML from a web-page corresponding to an individual job listing
-    #     and extracts the applicable HTML specific to the job description.
-    #     """
-    #     ...
+    def extract_job_info(tag: Tag) -> JobInfo:
+        title = tag.select('h3')
+        assert len(title) == 1
+        location = tag.select('h4')
+        assert len(location) == 1
 
-    def scrape(self) -> list[JobInfo]:
-        """
-        This function scapes the page of careers from self.url and all corresponding job listings.
-        """
-        resp = requests.get(url=self.url)
+        job_url = create_job_url(job_path=tag.attrs['href'].strip())
+        resp = requests.get(url=job_url)
         assert resp.status_code == 200
-        jobs = self._scrape_job_infos(resp.text)
-        return jobs
+        description = scrape_description(resp.text)
+
+        return JobInfo(
+            title=title[0].text.strip(),
+            location=location[0].text.strip(),
+            url=job_url,
+            description=description
+        )
+
+    return [extract_job_info(x) for x in job_objects]
