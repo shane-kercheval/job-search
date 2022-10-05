@@ -46,9 +46,7 @@ mlflow_clean:
 # Project
 ####
 linting:
-	flake8 --max-line-length 99 source/domain
-	flake8 --max-line-length 99 source/entrypoints
-	flake8 --max-line-length 99 source/service
+	flake8 --max-line-length 99 source
 	flake8 --max-line-length 99 tests
 
 tests: linting
