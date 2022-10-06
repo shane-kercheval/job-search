@@ -60,4 +60,4 @@ def scrape_vercel(url='https://vercel.com/careers') -> list[JobInfo]:
             description=description
         )
 
-    return [extract_job_info(x) for x in job_objects]
+    return (extract_job_info(x) for x in job_objects)
