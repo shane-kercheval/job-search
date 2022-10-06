@@ -203,8 +203,8 @@ def test_mock_vercel(httpserver: HTTPServer):
         'http://127.0.0.1:8000/careers/product-manager-usage-and-billing-us-4327432004',
         'http://127.0.0.1:8000/careers/sales-development-lead-apac-4423850004',
         'http://127.0.0.1:8000/careers/sales-development-representative-enterprise-us-4586706004',
-        'http://127.0.0.1:8000/careers/sales-development-representative-enterprise-europe-uk-4646256004',
-        'http://127.0.0.1:8000/careers/sales-development-representative-manager-east-us-4581381004',
+        'http://127.0.0.1:8000/careers/sales-development-representative-enterprise-europe-uk-4646256004',  # noqa
+        'http://127.0.0.1:8000/careers/sales-development-representative-manager-east-us-4581381004',  # noqa
         'http://127.0.0.1:8000/careers/sales-development-representative-mid-market-us-4414553004',
         'http://127.0.0.1:8000/careers/sales-engineer-us-4162371004',
         'http://127.0.0.1:8000/careers/sales-engineer-apac-4159197004',

@@ -62,7 +62,7 @@ class JobScraperBase(ABC):
         TBD
         """
         return self.url + job_path
-    
+
     def scrape(self) -> list[JobInfo]:
         """
         This function scrapes the job information from vercel.com and returns a list of JobInfo
