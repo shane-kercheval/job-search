@@ -32,15 +32,15 @@ def scrape_vercel(url='https://vercel.com/careers') -> list[JobInfo]:
         """
         return url + job_path.replace('/careers', '')
 
-    # def scrape_description(job_url: str) -> str:
-    #     """
-    #     This function takes the HTML from an individual job web-page and extracts the HTML that
-    #     associated with the job description. The HTML is retained.
-    #     """
-    #     resp = requests.get(url=job_url)
-    #     assert resp.status_code == 200
-    #     soup_desc = BeautifulSoup(resp.text, 'html.parser')
-    #     return str(soup_desc.select("section[class^=details_container]")[0].contents[0])
+    def scrape_description(job_url: str) -> str:
+        """
+        This function takes the HTML from an individual job web-page and extracts the HTML that
+        associated with the job description. The HTML is retained.
+        """
+        resp = requests.get(url=job_url)
+        assert resp.status_code == 200
+        soup_desc = BeautifulSoup(resp.text, 'html.parser')
+        return str(soup_desc.select("section[class^=details_container]")[0].contents[0])
 
     async def scrape_description_async(session, job_url):
         """
@@ -86,6 +86,9 @@ def scrape_vercel(url='https://vercel.com/careers') -> list[JobInfo]:
             return job_htmls
 
     descriptions = asyncio.run(get_descriptions())
+
+    #descriptions = [scrape_description(x) for x in job_urls]
+
     assert len(descriptions) > 0
 
     for job, description in zip(jobs, descriptions):

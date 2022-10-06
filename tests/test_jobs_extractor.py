@@ -206,6 +206,10 @@ def test_mock_vercel(httpserver: HTTPServer):
 
 
 def test_vercel():
+    import time
+    import logging
+    start = time.time()
     jobs = scrape_vercel()
-    str([j.title for j in jobs])
+    end = time.time()
+    logging.info(end - start)
     len(jobs)
