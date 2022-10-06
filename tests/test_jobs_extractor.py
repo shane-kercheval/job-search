@@ -1,6 +1,35 @@
 import os
 from pytest_httpserver import HTTPServer
-from source.jobs_extractors import scrape_vercel
+from source.jobs_extractors import JobScraperBase, VercelJobScraper
+
+
+class VercelMockJobScraper(JobScraperBase):
+    def __init__(self, url) -> None:
+        super().__init__()
+        self._url = url
+
+    @property
+    def url(self):
+        return self._url
+
+    @property
+    def job_objects_selector(self):
+        return 'a[class^=job-card_jobCard]'
+
+    @property
+    def job_description_selector(self):
+        return 'section[class^=details_container]'
+
+    @property
+    def title_selector(self):
+        return 'h3'
+
+    @property
+    def location_selector(self):
+        return 'h4'
+
+    def _create_job_url(self, job_path: str) -> str:
+        return self.url + job_path.replace('/careers', '')
 
 
 def test_mock_vercel(httpserver: HTTPServer):
@@ -26,7 +55,8 @@ def test_mock_vercel(httpserver: HTTPServer):
         httpserver.expect_request(mock_path).respond_with_data(job_html)
 
     url = httpserver.url_for("/careers")
-    jobs = scrape_vercel(url=url)
+    scraper = VercelMockJobScraper(url)
+    jobs = scraper.scrape()
 
     expected_titles = [
         'Analytics Engineer',
@@ -209,7 +239,8 @@ def test_vercel():
     import time
     import logging
     start = time.time()
-    jobs = scrape_vercel()
+    scraper = VercelJobScraper()
+    jobs = scraper.scrape()
     end = time.time()
     logging.info(end - start)
     len(jobs)
