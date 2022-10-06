@@ -203,3 +203,9 @@ def test_mock_vercel(httpserver: HTTPServer):
     assert expected_urls == [x.url for x in jobs]
 
     assert all([x.description is not None for x in jobs])
+
+
+def test_vercel():
+    jobs = scrape_vercel()
+    str([j.title for j in jobs])
+    len(jobs)

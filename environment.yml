@@ -3,26 +3,31 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - aiohttp=3.8.1=py310h1a28f6b_1
+  - aiosignal=1.2.0=pyhd3eb1b0_0
+  - async-timeout=4.0.2=py310hca03da5_0
   - attrs=21.4.0=pyhd3eb1b0_0
   - beautifulsoup4=4.11.1=py310hca03da5_0
   - brotlipy=0.7.0=py310h1a28f6b_1002
   - bs4=4.11.1=hd3eb1b0_0
   - bzip2=1.0.8=h620ffc9_4
-  - ca-certificates=2022.9.24=h4653dfc_0
-  - certifi=2022.9.24=pyhd8ed1ab_0
+  - ca-certificates=2022.07.19=hca03da5_0
+  - certifi=2022.9.14=py310hca03da5_0
   - cffi=1.15.1=py310h22df2f2_0
   - charset-normalizer=2.0.4=pyhd3eb1b0_0
   - coverage=6.3.2=py310h1a28f6b_0
   - cryptography=37.0.1=py310h834c97f_0
   - flake8=4.0.1=pyhd3eb1b0_1
+  - frozenlist=1.2.0=py310h1a28f6b_1
   - idna=3.3=pyhd3eb1b0_0
   - importlib-metadata=4.11.3=py310hca03da5_0
   - iniconfig=1.1.1=pyhd3eb1b0_0
   - libcxx=14.0.6=h848a8c0_0
   - libffi=3.4.2=hc377ac9_4
   - mccabe=0.7.0=pyhd3eb1b0_0
+  - multidict=5.2.0=py310h1a28f6b_3
   - ncurses=6.3=h1a28f6b_3
-  - openssl=1.1.1q=ha287fd2_0
+  - openssl=1.1.1q=h1a28f6b_0
   - packaging=21.3=pyhd3eb1b0_0
   - pip=22.2.2=py310hca03da5_0
   - pluggy=1.0.0=py310hca03da5_1
@@ -48,6 +53,7 @@ dependencies:
   - werkzeug=2.1.2=pyhd8ed1ab_1
   - wheel=0.37.1=pyhd3eb1b0_0
   - xz=5.2.6=h1a28f6b_0
+  - yarl=1.8.1=py310h1a28f6b_0
   - zipp=3.8.0=py310hca03da5_0
   - zlib=1.2.12=h5a0b063_3
 prefix: /Users/shanekercheval/opt/miniconda3/envs/job-search
