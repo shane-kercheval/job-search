@@ -2,7 +2,6 @@ from source.jobs_scraper import JobScraperBase
 
 
 class AnacondaJobScraper(JobScraperBase):
-
     @property
     def url(self):
         return 'https://anaconda.com/careers'
