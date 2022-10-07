@@ -255,4 +255,14 @@ def test_anaconda():
     jobs = scraper.scrape()
     end = time.time()
     logging.info(end - start)
-    #assert len(jobs) > 0
+    assert len(jobs) > 0
+
+def test_anaconda2():
+    import time
+    import logging
+    start = time.time()
+    scraper = AnacondaJobScraper()
+    jobs = scraper.scrape()
+    end = time.time()
+    logging.info(end - start)
+    assert len(jobs) > 0

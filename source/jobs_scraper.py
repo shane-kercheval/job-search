@@ -18,6 +18,18 @@ class JobInfo:
     description: str = None
 
 
+def shutdown(loop):
+    # Stop loop:
+    loop.stop()
+
+    # Find all running tasks:
+    # For python version < 3.7 use asyncio.Task.all_tasks()
+    # For python version >= 3.7 use asyncio.all_tasks()
+    pending = asyncio.Task.all_tasks()
+
+    # Run loop until tasks done:
+    loop.run_until_complete(asyncio.gather(*pending))
+
 # extract collection of jobs from careers page
 # for each job, get title, job url, job location (this might be in the job url not the collection
 # of jobs)
@@ -79,6 +91,11 @@ class JobScraperBase(ABC):
                 response_careers = session.get(self.url)
                 response_careers.html.render(timeout=20)
                 html = response_careers.html.html
+                #session.loop.stop() 
+                #asyncio.wait(session._browser)
+                # shutdown(session.loop)
+                # import time
+                # time.sleep(10)
         else:
             response_careers = requests.get(url=self.url)
             assert response_careers.status_code == 200
@@ -133,9 +150,12 @@ class JobScraperBase(ABC):
                 return job_htmls
 
         descriptions = asyncio.run(get_descriptions())
-        assert len(descriptions) > 0
 
-        for job, description in zip(jobs, descriptions):
-            job.description = description
+        #asyncio._cancel_all_tasks()
+#        asyncio.
+        #assert len(descriptions) > 0
+        # for job, description in zip(jobs, descriptions):
+        #     job.description = description
 
         return jobs
+
