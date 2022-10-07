@@ -18,18 +18,19 @@ class JobInfo:
     description: str = None
 
 
-# extract collection of jobs from careers page
-# for each job, get title, job url, job location (this might be in the job url not the collection
-# of jobs)
-# for all job urls, get description async
-# perhaps we should get job locations last, and pass in both the job objects and the descriptions
-# and it can extract from one of those.
-
-# search in description text matches for keywords e.g. python, snowflake, etc.
-# match resume to job description
-
-
 class JobScraperBase(ABC):
+    """
+    This base class provides the core logic to scrape a typical careers/job page, where each job
+    listing is in an HTML element that can be selected via BeautifulSoup and each job HTML element
+    contains a job title, location (optional), and a URL that references the job description.
+
+    Child classes specify url and HTML selectors by overriddening the necessary properies. Then the
+    class can be used as follows:
+
+        scraper = CompanyXJobScraper()
+        jobs = scraper.scrape()
+
+    """
     @property
     @abstractmethod
     def url(self):
@@ -38,22 +39,31 @@ class JobScraperBase(ABC):
     @property
     @abstractmethod
     def job_objects_selector(self):
-        """CSS selector that results in a collection of jobs."""
+        """CSS selector that results in a collection of jobs on self.url (via BeatuifulSoup)."""
 
     @property
     @abstractmethod
     def job_description_selector(self):
-        """TBD"""
+        """
+        CSS selector that results in the job description from an individual job url
+        (via BeatuifulSoup).
+        """
 
     @property
     @abstractmethod
     def title_selector(self):
-        """TBD"""
+        """
+        CSS selector that selects the job title from an individual BeautifulSoup tag selected
+        from self.job_objects_selector on self.url
+        """
 
     @property
     @abstractmethod
     def location_selector(self):
-        """TBD"""
+        """
+        CSS selector that selects the job location from an individual BeautifulSoup tag selected
+        from self.job_objects_selector on self.url
+        """
 
     @property
     def uses_javascript(self):
@@ -71,7 +81,15 @@ class JobScraperBase(ABC):
 
     def _create_job_url(self, job_path: str) -> str:
         """
-        TBD
+        This function returns the url to job description. It takes the job_path which is the url
+        that was extracted from the individual job tag/element from BeautifulSoup.
+
+        This function is needed because some urls returned are relative to the careers url e.g.
+        "/job_123" and some urls are absolute "company.com/careers/job_123"; the latter is required
+        to scrape the job description.
+
+        The default implementation is to append the job_path to self.url, but this method can be
+        overridden as necessary in child classes.
         """
         return self.url + job_path
 
@@ -124,9 +142,6 @@ class JobScraperBase(ABC):
         assert len(location) == 1
         job_url = self._create_job_url(job_path=job_object.attrs['href'].strip())
 
-        # description = scrape_description(job_url=job_url)
-        # assert description is not None and description != ''
-
         return JobInfo(
             title=title[0].text.strip(),
             location=location[0].text.strip(),
@@ -134,8 +149,11 @@ class JobScraperBase(ABC):
             description=None  # we will get descriptions from each job page async
         )
 
-    def _scape_job_descriptions(self, job_urls):
+    def _scape_job_descriptions(self, job_urls: list[str]) -> list[str]:
         """
+        This method takes a list of urls that correspond to the job description from individual
+        jobs, and scrapes each url, extracting the description, and returning a list of
+        descriptions.
         """
         async def scrape_description_async(session, url):
             """
