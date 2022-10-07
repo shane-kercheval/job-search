@@ -136,7 +136,7 @@ class JobScraperBase(ABC):
 
     def scrape(self) -> list[JobInfo]:
         """
-        This function scrapes the job information from vercel.com and returns a list of JobInfo
+        This function scrapes the job information from self.url and returns a list of JobInfo
         objects.
         """
         job_objects = self._scrape_job_objects()
