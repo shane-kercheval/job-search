@@ -86,10 +86,11 @@ class JobScraperBase(ABC):
             assert job.title
             assert job.description
 
-    def scrape(self) -> list[JobInfo]:
+    def _scrape_job_objects(self) -> list[Tag]:
         """
-        This function scrapes the job information from vercel.com and returns a list of JobInfo
-        objects.
+        This function scrapes the careers/job page (self.url) and extracts and returns the job
+        objects (i.e. Tags) returned from BeautifulSoup's .select function. This can be overridden
+        by child classes if needed.
         """
         if self.uses_javascript:
             # https://stackoverflow.com/questions/46727787/runtimeerror-there-is-no-current-event-loop-in-thread-in-async-apscheduler
@@ -109,29 +110,37 @@ class JobScraperBase(ABC):
         job_objects = soup_careers.select(self.job_objects_selector)
         assert len(job_objects) > 0
 
-        def extract_job_info(job_object: Tag) -> JobInfo:
-            """
-            This function takes an individual job listing on the careers page and extracts the
-            information, returning a JobInfo object.
-            """
-            title = job_object.select(self.title_selector)
-            assert len(title) == 1
-            location = job_object.select(self.location_selector)
-            assert len(location) == 1
-            job_url = self._create_job_url(job_path=job_object.attrs['href'].strip())
+        return job_objects
 
-            # description = scrape_description(job_url=job_url)
-            # assert description is not None and description != ''
+    def _extract_job_info(self, job_object: Tag) -> JobInfo:
+        """
+        This function takes an individual job listing on the careers page (i.e. one of the
+        objects in the list returned by _scrape_job_objects) and extracts the job information,
+        returning a JobInfo object.
+        """
+        title = job_object.select(self.title_selector)
+        assert len(title) == 1
+        location = job_object.select(self.location_selector)
+        assert len(location) == 1
+        job_url = self._create_job_url(job_path=job_object.attrs['href'].strip())
 
-            return JobInfo(
-                title=title[0].text.strip(),
-                location=location[0].text.strip(),
-                url=job_url,
-                description=None  # we will get descriptions from each job page async
-            )
+        # description = scrape_description(job_url=job_url)
+        # assert description is not None and description != ''
 
-        jobs = [extract_job_info(x) for x in job_objects]
-        job_urls = [x.url for x in jobs]
+        return JobInfo(
+            title=title[0].text.strip(),
+            location=location[0].text.strip(),
+            url=job_url,
+            description=None  # we will get descriptions from each job page async
+        )
+
+    def scrape(self) -> list[JobInfo]:
+        """
+        This function scrapes the job information from vercel.com and returns a list of JobInfo
+        objects.
+        """
+        job_objects = self._scrape_job_objects()
+        jobs = [self._extract_job_info(x) for x in job_objects]
 
         async def scrape_description_async(session, job_url):
             """
@@ -144,15 +153,17 @@ class JobScraperBase(ABC):
                 soup_desc = BeautifulSoup(html, 'html.parser')
                 return str(soup_desc.select(self.job_description_selector)[0])
 
-        async def get_descriptions():
+        async def get_descriptions(urls):
             async with aiohttp.ClientSession() as session:
                 tasks = []
-                for url in job_urls:
+                for url in urls:
                     tasks.append(asyncio.ensure_future(scrape_description_async(session, url)))
 
                 job_htmls = await asyncio.gather(*tasks)
                 return job_htmls
-        descriptions = asyncio.run(get_descriptions())
+
+        job_urls = [x.url for x in jobs]
+        descriptions = asyncio.run(get_descriptions(urls=job_urls))
         assert len(descriptions) > 0
         for job, description in zip(jobs, descriptions):
             job.description = description
