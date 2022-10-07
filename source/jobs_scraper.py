@@ -18,18 +18,6 @@ class JobInfo:
     description: str = None
 
 
-def shutdown(loop):
-    # Stop loop:
-    loop.stop()
-
-    # Find all running tasks:
-    # For python version < 3.7 use asyncio.Task.all_tasks()
-    # For python version >= 3.7 use asyncio.all_tasks()
-    pending = asyncio.Task.all_tasks()
-
-    # Run loop until tasks done:
-    loop.run_until_complete(asyncio.gather(*pending))
-
 # extract collection of jobs from careers page
 # for each job, get title, job url, job location (this might be in the job url not the collection
 # of jobs)
@@ -39,6 +27,7 @@ def shutdown(loop):
 
 # search in description text matches for keywords e.g. python, snowflake, etc.
 # match resume to job description
+
 
 class JobScraperBase(ABC):
     @property
@@ -73,6 +62,16 @@ class JobScraperBase(ABC):
 
     @property
     def uses_javascript(self):
+        """
+        If the site uses Javascript to load jobs (e.g. from external site / container) then we
+        need to use requests_html.HTMLSession to load the entire site after rendering JavaScript;
+        whereas requests.get will load the html before JavaScript runs and the page fully renders.
+
+        Unsurprisingly, requests.get is much faster than requests_html.HTMLSession
+
+        - Returning `False` from this property will use use requests.get
+        - Returning `True` from this property will use use requests_html.HTMLSession
+        """
         return False
 
     def _create_job_url(self, job_path: str) -> str:
@@ -87,20 +86,19 @@ class JobScraperBase(ABC):
         objects.
         """
         if self.uses_javascript:
+            # https://stackoverflow.com/questions/46727787/runtimeerror-there-is-no-current-event-loop-in-thread-in-async-apscheduler
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
             with HTMLSession() as session:
                 response_careers = session.get(self.url)
                 response_careers.html.render(timeout=20)
                 html = response_careers.html.html
-                #session.loop.stop() 
-                #asyncio.wait(session._browser)
-                # shutdown(session.loop)
-                # import time
-                # time.sleep(10)
         else:
             response_careers = requests.get(url=self.url)
             assert response_careers.status_code == 200
             html = response_careers.text
 
+        print('DONE HTMLSESSION')
         soup_careers = BeautifulSoup(html, 'html.parser')
         job_objects = soup_careers.select(self.job_objects_selector)
         assert len(job_objects) > 0
@@ -148,14 +146,9 @@ class JobScraperBase(ABC):
 
                 job_htmls = await asyncio.gather(*tasks)
                 return job_htmls
-
         descriptions = asyncio.run(get_descriptions())
-
-        #asyncio._cancel_all_tasks()
-#        asyncio.
-        #assert len(descriptions) > 0
-        # for job, description in zip(jobs, descriptions):
-        #     job.description = description
+        assert len(descriptions) > 0
+        for job, description in zip(jobs, descriptions):
+            job.description = description
 
         return jobs
-
