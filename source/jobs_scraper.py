@@ -123,7 +123,6 @@ class JobScraperBase(ABC):
             assert response_careers.status_code == 200
             html = response_careers.text
 
-        print('DONE HTMLSESSION')
         soup_careers = BeautifulSoup(html, 'html.parser')
         job_objects = soup_careers.select(self.job_objects_selector)
         assert len(job_objects) > 0
