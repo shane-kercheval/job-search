@@ -34,31 +34,26 @@ class JobScraperBase(ABC):
     @abstractmethod
     def url(self):
         """Returns the URL to the careers/jobs page."""
-        ...
 
     @property
     @abstractmethod
     def job_objects_selector(self):
         """CSS selector that results in a collection of jobs."""
-        ...
 
     @property
     @abstractmethod
     def job_description_selector(self):
         """TBD"""
-        ...
 
     @property
     @abstractmethod
     def title_selector(self):
         """TBD"""
-        ...
 
     @property
     @abstractmethod
     def location_selector(self):
         """TBD"""
-        ...
 
     @property
     def uses_javascript(self):
