@@ -134,20 +134,15 @@ class JobScraperBase(ABC):
             description=None  # we will get descriptions from each job page async
         )
 
-    def scrape(self) -> list[JobInfo]:
+    def _scape_job_descriptions(self, job_urls):
         """
-        This function scrapes the job information from self.url and returns a list of JobInfo
-        objects.
         """
-        job_objects = self._scrape_job_objects()
-        jobs = [self._extract_job_info(x) for x in job_objects]
-
-        async def scrape_description_async(session, job_url):
+        async def scrape_description_async(session, url):
             """
             This function takes the HTML from an individual job web-page and extracts the HTML that
             associated with the job description. The HTML is retained.
             """
-            async with session.get(job_url) as resp:
+            async with session.get(url) as resp:
                 html = await resp.text()
                 'Sr. Software Engineer' in html
                 soup_desc = BeautifulSoup(html, 'html.parser')
@@ -162,12 +157,21 @@ class JobScraperBase(ABC):
                 job_htmls = await asyncio.gather(*tasks)
                 return job_htmls
 
-        job_urls = [x.url for x in jobs]
         descriptions = asyncio.run(get_descriptions(urls=job_urls))
         assert len(descriptions) > 0
+        return descriptions
+
+    def scrape(self) -> list[JobInfo]:
+        """
+        This function scrapes the job information from self.url and returns a list of JobInfo
+        objects.
+        """
+        job_objects = self._scrape_job_objects()
+        jobs = [self._extract_job_info(x) for x in job_objects]
+
+        descriptions = self._scape_job_descriptions(job_urls=[x.url for x in jobs])
         for job, description in zip(jobs, descriptions):
             job.description = description
 
         self._assert_job_info_values(jobs)
-
         return jobs
