@@ -237,22 +237,12 @@ def test_mock_vercel(httpserver: HTTPServer):
 
 
 def test_vercel():
-    # import time
-    # import logging
-    # start = time.time()
     scraper = VercelJobScraper()
     jobs = scraper.scrape()
-    # end = time.time()
-    # logging.info(end - start)
     assert len(jobs) > 0
 
 
 def test_anaconda():
-    # import time
-    # import logging
-    # start = time.time()
     scraper = AnacondaJobScraper()
     jobs = scraper.scrape()
-    # end = time.time()
-    # logging.info(end - start)
     assert len(jobs) > 0

@@ -75,6 +75,17 @@ class JobScraperBase(ABC):
         """
         return self.url + job_path
 
+    def _assert_job_info_values(self, jobs: list[JobInfo]) -> None:
+        """
+        Ensures that all JobInfo fields have values. This can be overridden by child classes in the
+        case where we don't expect certain values (e.g. some jobs may not have location).
+        """
+        for job in jobs:
+            assert job.title
+            assert job.location
+            assert job.title
+            assert job.description
+
     def scrape(self) -> list[JobInfo]:
         """
         This function scrapes the job information from vercel.com and returns a list of JobInfo
@@ -145,5 +156,7 @@ class JobScraperBase(ABC):
         assert len(descriptions) > 0
         for job, description in zip(jobs, descriptions):
             job.description = description
+
+        self._assert_job_info_values(jobs)
 
         return jobs
