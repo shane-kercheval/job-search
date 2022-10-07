@@ -2,9 +2,14 @@ from source.jobs_scraper import JobScraperBase
 
 
 class AnacondaJobScraper(JobScraperBase):
+
     @property
     def url(self):
         return 'https://anaconda.com/careers'
+
+    @property
+    def uses_javascript(self):
+        return True
 
     @property
     def job_objects_selector(self):
