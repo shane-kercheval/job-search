@@ -7,6 +7,7 @@ from source.jobs_scraper import JobInfo, JobScraperBase
 from source.scrapers.vercel import VercelJobScraper
 from source.scrapers.anaconda import AnacondaJobScraper
 # from source.scrapers.chime_analytics import ChimeAnalyticsJobScraper
+from tests.conftest import setup_mock_server
 
 
 class VercelMockJobScraper(JobScraperBase):
@@ -51,7 +52,6 @@ class VercelMockJobScraper(JobScraperBase):
 
 
 def test_mock_vercel(httpserver: HTTPServer):
-    from tests.conftest import setup_mock_server
     setup_mock_server(httpserver)
     url = httpserver.url_for("/careers")
 

@@ -1,4 +1,5 @@
 from functools import singledispatch
+from collections.abc import Iterable
 import requests
 from requests_html import HTMLSession, AsyncHTMLSession
 
@@ -30,8 +31,8 @@ def _(url: str) -> str:
     return response.text
 
 
-@get.register(list[str])
-def _(url: list[str]) -> list[str]:
+@get.register(Iterable[str])
+def _(url: Iterable[str]) -> Iterable[str]:
     async def scrape_single(session, url):
         """This function takes the HTML from an web-page and extracts the HTML."""
         async with session.get(url) as resp:
@@ -77,8 +78,10 @@ def _(url: str) -> str:
         return response.html.html
 
 
-@render.register(list[str])
-def _(url: list[str]) -> list[str]:
+@render.register(Iterable[str])
+def _(url: Iterable[str]) -> list[str]:
+    urls = url; del url  # noqa
+
     async def arender(session, url: str) -> str:
         """
         returns tuple including url and html (url is returned because asession.run does not seem to
@@ -89,18 +92,15 @@ def _(url: list[str]) -> list[str]:
         await r.html.arender()
         return url, r.html.html
 
-    def get_results(session, urls: list[str]) -> list[str]:
-        assert len(urls) == len(set(urls))  # ensure unique urls
-        # url=url explained in these links
-        # https://stackoverflow.com/questions/67656204/how-can-i-build-a-list-of-async-tasks-with-argument-for-asynchtmlsession-run
-        # https://docs.python.org/3.4/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
-        # warning does not return in same order
-        results = session.run(*[lambda url=url: arender(session, url) for url in urls])
-        assert set(urls) == set(x[0] for x in results)
-        # ensure we return the job descriptions in the same order of the urls passed in
-        results = dict(results)  # keys are urls and values are
-        return [results[x] for x in urls]
-
-    asession = AsyncHTMLSession()
-    results = get_results(asession, url)
+    session = AsyncHTMLSession()
+    assert len(urls) == len(set(urls))  # ensure unique urls
+    # url=url explained in these links
+    # https://stackoverflow.com/questions/67656204/how-can-i-build-a-list-of-async-tasks-with-argument-for-asynchtmlsession-run
+    # https://docs.python.org/3.4/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
+    # warning does not return in same order
+    results = session.run(*[lambda url=url: arender(session, url) for url in urls])
+    assert set(urls) == set(x[0] for x in results)
+    # ensure we return the job descriptions in the same order of the urls passed in
+    results = dict(results)  # keys are urls and values are
+    results = [results[x] for x in urls]
     return results
