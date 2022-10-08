@@ -31,7 +31,7 @@ def _(url: str) -> str:
     return response.text
 
 
-@get.register(Iterable[str])
+@get.register(Iterable)
 def _(url: Iterable[str]) -> Iterable[str]:
     async def scrape_single(session, url):
         """This function takes the HTML from an web-page and extracts the HTML."""
@@ -78,7 +78,7 @@ def _(url: str) -> str:
         return response.html.html
 
 
-@render.register(Iterable[str])
+@render.register(Iterable)
 def _(url: Iterable[str]) -> list[str]:
     urls = url; del url  # noqa
 
