@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import requests
-from bs4 import BeautifulSoup
-from bs4.element import Tag
 
 from requests_html import HTMLSession
 
@@ -36,33 +34,32 @@ class JobScraperBase(ABC):
     def url(self):
         """Returns the URL to the careers/jobs page."""
 
-    @property
     @abstractmethod
-    def job_objects_selector(self):
-        """CSS selector that results in a collection of jobs on self.url (via BeatuifulSoup)."""
+    def _extract_job_objects(self, html: str) -> list[str]:
+        """Takes a string containg HTML of self.url and returns a list of html elements containing
+        the job information (e.g. title, location, job description url)."""
 
-    @property
     @abstractmethod
-    def job_description_selector(self):
+    def _extract_title(self, html: str) -> str:
         """
-        CSS selector that results in the job description from an individual job url
-        (via BeatuifulSoup).
+        Takes a string containing HTML of a job and extracts the job title.
         """
 
-    @property
     @abstractmethod
-    def title_selector(self):
+    def _extract_location(self, html: str) -> str:
         """
-        CSS selector that selects the job title from an individual BeautifulSoup tag selected
-        from self.job_objects_selector on self.url
+        TBD
         """
 
-    @property
     @abstractmethod
-    def location_selector(self):
+    def _extract_url(self, html: str) -> str:
         """
-        CSS selector that selects the job location from an individual BeautifulSoup tag selected
-        from self.job_objects_selector on self.url
+        TBD
+        """
+    @abstractmethod
+    def _extract_job_description(self, html: str) -> str:
+        """
+        TBD
         """
 
     @property
@@ -104,7 +101,7 @@ class JobScraperBase(ABC):
             assert job.title
             assert job.description
 
-    def _scrape_job_objects(self) -> list[Tag]:
+    def _scrape_job_objects(self) -> list[str]:
         """
         This function scrapes the careers/job page (self.url) and extracts and returns the job
         objects (i.e. Tags) returned from BeautifulSoup's .select function. This can be overridden
@@ -123,27 +120,23 @@ class JobScraperBase(ABC):
             assert response_careers.status_code == 200
             html = response_careers.text
 
-        soup_careers = BeautifulSoup(html, 'html.parser')
-        job_objects = soup_careers.select(self.job_objects_selector)
+        job_objects = self._extract_job_objects(html=html)
         assert len(job_objects) > 0
-
         return job_objects
 
-    def _extract_job_info(self, job_object: Tag) -> JobInfo:
+    def _extract_job_info(self, html: str) -> JobInfo:
         """
         This function takes an individual job listing on the careers page (i.e. one of the
         objects in the list returned by _scrape_job_objects) and extracts the job information,
         returning a JobInfo object.
         """
-        title = job_object.select(self.title_selector)
-        assert len(title) == 1
-        location = job_object.select(self.location_selector)
-        assert len(location) == 1
-        job_url = self._create_job_url(job_path=job_object.attrs['href'].strip())
+        title = self._extract_title(html=html)
+        location = self._extract_location(html=html)
+        job_url = self._create_job_url(job_path=self._extract_url(html=html))
 
         return JobInfo(
-            title=title[0].text.strip(),
-            location=location[0].text.strip(),
+            title=title,
+            location=location,
             url=job_url,
             description=None  # we will get descriptions from each job page async
         )
@@ -161,9 +154,7 @@ class JobScraperBase(ABC):
             """
             async with session.get(url) as resp:
                 html = await resp.text()
-                'Sr. Software Engineer' in html
-                soup_desc = BeautifulSoup(html, 'html.parser')
-                return str(soup_desc.select(self.job_description_selector)[0])
+                return self._extract_job_description(html=html)
 
         async def get_descriptions(urls):
             async with aiohttp.ClientSession() as session:
