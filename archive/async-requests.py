@@ -10,7 +10,6 @@ for x in range(1, 51):
 async def work(s, url):
     r = await s.get(url)
     assert r.status_code == 200
-    #await r.htlm.arender(timeout=20)
     products = []
     desc = r.html.find('article.product_pod')
     for item in desc:
