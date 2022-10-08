@@ -177,7 +177,9 @@ class JobScraperBase(ABC):
         job_objects = self._scrape_job_objects()
         jobs = [self._extract_job_info(x) for x in job_objects]
 
-        descriptions = self._scape_job_descriptions(job_urls=[x.url for x in jobs])
+        urls = [x.url for x in jobs]
+        assert len(urls) == len(set(urls))  # ensure unique urls
+        descriptions = self._scape_job_descriptions(job_urls=urls)
         for job, description in zip(jobs, descriptions):
             job.description = description
 
