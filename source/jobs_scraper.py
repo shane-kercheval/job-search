@@ -112,13 +112,13 @@ class JobScraperBase(ABC):
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             with HTMLSession() as session:
-                response_careers = session.get(self.url)
-                response_careers.html.render(timeout=20)
-                html = response_careers.html.html
+                response = session.get(self.url)
+                response.html.render(timeout=20)
+                html = response.html.html
         else:
-            response_careers = requests.get(url=self.url)
-            assert response_careers.status_code == 200
-            html = response_careers.text
+            response = requests.get(url=self.url)
+            assert response.status_code == 200
+            html = response.text
 
         job_objects = self._extract_job_objects(html=html)
         assert len(job_objects) > 0
