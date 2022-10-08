@@ -4,10 +4,10 @@ from bs4 import BeautifulSoup
 import yaml
 
 
-# from source.chime_analytics import ChimeAnalyticsJobScraper
 from source.jobs_scraper import JobInfo, JobScraperBase
-from source.vercel import VercelJobScraper
-from source.anaconda import AnacondaJobScraper
+from source.scrapers.vercel import VercelJobScraper
+from source.scrapers.anaconda import AnacondaJobScraper
+from source.scrapers.chime_analytics import ChimeAnalyticsJobScraper
 
 
 class VercelMockJobScraper(JobScraperBase):
@@ -278,7 +278,9 @@ def test_anaconda():
         yaml.dump([job_to_dict(x) for x in jobs], outfile)
 
 
-# def test_chime_analytics():
-#     scraper = ChimeAnalyticsJobScraper()
-#     jobs = scraper.scrape()
-#     assert len(jobs) > 0
+def test_chime_analytics():
+    scraper = ChimeAnalyticsJobScraper()
+    jobs = scraper.scrape()
+    assert len(jobs) > 0
+    with open('tests/test_files/extracted_jobs/chime_analytics_jobs.yml', 'w') as outfile:
+        yaml.dump([job_to_dict(x) for x in jobs], outfile)

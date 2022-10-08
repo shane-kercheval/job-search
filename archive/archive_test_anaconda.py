@@ -1,5 +1,5 @@
-from source.anaconda import AnacondaJobScraper
-from source.vercel import VercelJobScraper
+from source.scrapers.anaconda import AnacondaJobScraper
+from source.scrapers.vercel import VercelJobScraper
 
 
 def test_anaconda():
