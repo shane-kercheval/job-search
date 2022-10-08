@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 asession = AsyncHTMLSession()
 
 
-
 def extract_job_description(html: str) -> str:
     soup = BeautifulSoup(html, 'html.parser')
     job_description = soup.select('section.job-description')
