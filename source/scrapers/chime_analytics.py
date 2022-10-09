@@ -41,10 +41,8 @@ class ChimeAnalyticsJobScraper(JobScraperBase):
         return tag[0].attrs['href']
 
     def _extract_job_description(self, html: str) -> str:
-        soup_desc = BeautifulSoup(html, 'html.parser')
-        soup_desc.text.replace(r'\\n', '')
-        soup_desc.select('section.job-description')
-        return str(soup_desc.select('section[class^=details_container]')[0])
+        soup = BeautifulSoup(html, 'html.parser')
+        return str(soup.select('div.job-desc')[0])
 
     def _create_job_url(self, job_path: str) -> str:
         return job_path

@@ -77,7 +77,7 @@ def render(url) -> object:
                 """
                 r = await session.get(url=url)
                 # r.status_code????
-                await r.html.arender()
+                await r.html.arender(timeout=20)
                 return url, r.html.html
 
             session = AsyncHTMLSession()
