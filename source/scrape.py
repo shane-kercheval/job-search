@@ -21,14 +21,16 @@ def get(url) -> object:
     """
     if isinstance(url, str):
         response = requests.get(url=url)
-        assert response.status_code == 200
+        if response.status_code != 200:
+            raise RequestException(f"status-code: {response.status_code}")
         return response.text
     elif isinstance(url, Iterable):
         async def scrape_single(session, url):
             """This function takes the HTML from an web-page and extracts the HTML."""
-            async with session.get(url) as resp:
-                # resp.status_code????????
-                html = await resp.text()
+            async with session.get(url) as response:
+                if response.status != 200:
+                    raise RequestException(f"status-code: {response.status}")
+                html = await response.text()
                 return html
 
         async def get_results(urls):
@@ -65,6 +67,8 @@ def render(url) -> object:
         if isinstance(url, str):
             with HTMLSession() as session:
                 response = session.get(url=url)
+                if response.status_code != 200:
+                    raise RequestException(f"status-code: {response.status_code}")
                 response.html.render(timeout=20)
                 return response.html.html
         elif isinstance(url, Iterable):
@@ -75,10 +79,11 @@ def render(url) -> object:
                 returns tuple including url and html (url is returned because asession.run does not
                 seem to ensure the same order is returned)
                 """
-                r = await session.get(url=url)
-                # r.status_code????
-                await r.html.arender(timeout=20)
-                return url, r.html.html
+                response = await session.get(url=url)
+                if response.status_code != 200:
+                    raise RequestException(f"status-code: {response.status_code}")
+                await response.html.arender(timeout=20)
+                return url, response.html.html
 
             session = AsyncHTMLSession()
             assert len(urls) == len(set(urls))  # ensure unique urls

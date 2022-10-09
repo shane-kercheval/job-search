@@ -1,7 +1,54 @@
+import pytest
 from http.server import HTTPServer
 from bs4 import BeautifulSoup
 from tests.conftest import setup_mock_server
-from source.scrape import get, render
+from source.scrape import RequestException, get, render
+
+
+def test_get_type_not_supported():
+    with pytest.raises(ValueError):
+        get(1)
+
+
+def test_get_type_not_supported_none():
+    with pytest.raises(ValueError):
+        get(None)
+
+
+def test_render_type_not_supported():
+    with pytest.raises(ValueError):
+        render(1)
+
+
+def test_render_type_not_supported_none():
+    with pytest.raises(ValueError):
+        render(None)
+
+
+def test_get_single_url_status_not_200(httpserver: HTTPServer):
+    with pytest.raises(RequestException):
+        setup_mock_server(httpserver)
+        url = httpserver.url_for('/invalid')
+        get(url)
+
+
+def test_get_multiple_urls_status_not_200(httpserver: HTTPServer):
+    with pytest.raises(RequestException):
+        setup_mock_server(httpserver)
+        get(url=[httpserver.url_for(x) for x in ['/invalid', '/invalid']])
+
+
+def test_render_single_url_status_not_200(httpserver: HTTPServer):
+    with pytest.raises(RequestException):
+        setup_mock_server(httpserver)
+        url = httpserver.url_for('/invalid')
+        render(url)
+
+
+def test_render_multiple_urls_status_not_200(httpserver: HTTPServer):
+    with pytest.raises(RequestException):
+        setup_mock_server(httpserver)
+        render(url=[httpserver.url_for(x) for x in ['/invalid1', '/invalid2']])
 
 
 def test_get_single_url(httpserver: HTTPServer):
