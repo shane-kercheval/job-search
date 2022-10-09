@@ -8,7 +8,7 @@ class AnacondaJobScraper(JobScraperBase):
         return 'https://anaconda.com/careers'
 
     @property
-    def uses_javascript(self):
+    def job_objects_use_javascript(self):
         return True
 
     def _extract_job_objects(self, html: str) -> list[str]:

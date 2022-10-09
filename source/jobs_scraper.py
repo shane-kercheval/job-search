@@ -58,11 +58,26 @@ class JobScraperBase(ABC):
         """
 
     @property
-    def uses_javascript(self):
+    def job_objects_use_javascript(self):
         """
         If the site uses Javascript to load jobs (e.g. from external site / container) then we
         need to use requests_html.HTMLSession to load the entire site after rendering JavaScript;
         whereas requests.get will load the html before JavaScript runs and the page fully renders.
+
+        Unsurprisingly, requests.get is much faster than requests_html.HTMLSession
+
+        - Returning `False` from this property will use use requests.get
+        - Returning `True` from this property will use use requests_html.HTMLSession
+        """
+        return False
+
+    @property
+    def job_descriptions_use_javascript(self):
+        """
+        If the job-description web-pages uses Javascript to load information (e.g. from external
+        site / container) then we need to use requests_html.HTMLSession to load the entire site
+        after rendering JavaScript; whereas requests.get will load the html before JavaScript runs
+        and the page fully renders.
 
         Unsurprisingly, requests.get is much faster than requests_html.HTMLSession
 
@@ -102,7 +117,7 @@ class JobScraperBase(ABC):
         objects (i.e. Tags) returned from BeautifulSoup's .select function. This can be overridden
         by child classes if needed.
         """
-        if self.uses_javascript:
+        if self.job_objects_use_javascript:
             html = scrape.render(url=self.url)
         else:
             html = scrape.get(url=self.url)
@@ -134,7 +149,11 @@ class JobScraperBase(ABC):
         jobs, and scrapes each url, extracting the description, and returning a list of
         descriptions.
         """
-        htmls = scrape.get(url=job_urls)
+        if self.job_descriptions_use_javascript:
+            htmls = scrape.render(url=job_urls)
+        else:
+            htmls = scrape.get(url=job_urls)
+
         descriptions = [self._extract_job_description(html=html) for html in htmls]
         assert len(descriptions) > 0
         return descriptions

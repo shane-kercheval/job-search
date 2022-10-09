@@ -8,7 +8,11 @@ class ChimeAnalyticsJobScraper(JobScraperBase):
         return 'https://careers.chime.com/c/analytics-jobs'
 
     @property
-    def uses_javascript(self):
+    def job_objects_use_javascript(self):
+        return True
+
+    @property
+    def job_descriptions_use_javascript(self):
         return True
 
     def _extract_job_objects(self, html: str) -> list[str]:
@@ -27,7 +31,8 @@ class ChimeAnalyticsJobScraper(JobScraperBase):
         soup = BeautifulSoup(html, 'html.parser')
         location_object = soup.select('span.job-location')
         assert len(location_object) == 1
-        return location_object[0].text.strip()
+        temp = location_object[0].text.strip().split('\n')
+        return temp[-1].strip()
 
     def _extract_url(self, html: str) -> str:
         soup = BeautifulSoup(html, 'html.parser')
