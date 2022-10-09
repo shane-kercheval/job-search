@@ -1,14 +1,6 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-import source.scrape as scrape
-
-
-@dataclass
-class JobInfo:
-    title: str = None
-    location: str = None
-    url: str = None
-    description: str = None
+import source.domain.scrape as scrape
+from source.entities.entities import JobInfo
 
 
 class JobScraperBase(ABC):

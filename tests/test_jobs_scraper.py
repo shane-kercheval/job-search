@@ -3,10 +3,10 @@ from bs4 import BeautifulSoup
 import yaml
 
 
-from source.jobs_scraper import JobInfo, JobScraperBase
-from source.scrapers.vercel import VercelJobScraper
-from source.scrapers.anaconda import AnacondaJobScraper
-from source.scrapers.chime_analytics import ChimeAnalyticsJobScraper
+from source.domain.jobs_scraper import JobInfo, JobScraperBase
+from source.domain.scrapers.vercel import VercelJobScraper
+from source.domain.scrapers.anaconda import AnacondaJobScraper
+from source.domain.scrapers.chime_analytics import ChimeAnalyticsJobScraper
 from tests.conftest import setup_mock_server
 
 
