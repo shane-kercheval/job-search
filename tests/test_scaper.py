@@ -1,7 +1,7 @@
 from http.server import HTTPServer
 from bs4 import BeautifulSoup
 from tests.conftest import setup_mock_server
-from source.scrape import get
+from source.scrape import get, render
 
 
 def test_get_single_url(httpserver: HTTPServer):
@@ -35,3 +35,28 @@ def test_get_multiple_urls(httpserver: HTTPServer):
 
     soup = BeautifulSoup(htmls[3], 'html.parser')
     assert soup.select('title')[0].text == 'Instructional Designer, Europe – Vercel'
+
+
+def test_render_single_url(httpserver: HTTPServer):
+    setup_mock_server(httpserver)
+    url = httpserver.url_for('/careers/analytics-engineer-amer-4486497004')
+    html = render(url)
+    assert 'Analytics Engineer  – Vercel' in html
+
+
+def test_render_multiple_urls(httpserver: HTTPServer):
+    setup_mock_server(httpserver)
+    urls = [
+        '/careers/analytics-engineer-amer-4486497004',
+        '/careers/field-marketing-manager-west-us-4623565004',
+        '/careers/senior-manager-customer-success-management-us-4426201004',
+        '/careers/instructional-designer-europe-uk-us-4651728004',
+    ]
+    urls = [httpserver.url_for(url) for url in urls]
+    htmls = render(urls)
+    assert len(htmls) == len(urls)
+
+    assert 'Analytics Engineer  – Vercel' in htmls[0]
+    assert 'Field Marketing Manager, West – Vercel' in htmls[1]
+    assert 'Senior Manager, Customer Success Management – Vercel' in htmls[2]
+    assert 'Instructional Designer, Europe – Vercel' in htmls[3]
