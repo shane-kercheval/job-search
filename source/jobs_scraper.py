@@ -1,11 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import requests
-
-from requests_html import HTMLSession
-
-import aiohttp
-import asyncio
+import source.scrape as scrape
 
 
 @dataclass
@@ -108,17 +103,9 @@ class JobScraperBase(ABC):
         by child classes if needed.
         """
         if self.uses_javascript:
-            # https://stackoverflow.com/questions/46727787/runtimeerror-there-is-no-current-event-loop-in-thread-in-async-apscheduler
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            with HTMLSession() as session:
-                response = session.get(self.url)
-                response.html.render(timeout=20)
-                html = response.html.html
+            html = scrape.render(url=self.url)
         else:
-            response = requests.get(url=self.url)
-            assert response.status_code == 200
-            html = response.text
+            html = scrape.get(url=self.url)
 
         job_objects = self._extract_job_objects(html=html)
         assert len(job_objects) > 0
@@ -147,25 +134,8 @@ class JobScraperBase(ABC):
         jobs, and scrapes each url, extracting the description, and returning a list of
         descriptions.
         """
-        async def scrape_description_async(session, url):
-            """
-            This function takes the HTML from an individual job web-page and extracts the HTML that
-            associated with the job description. The HTML is retained.
-            """
-            async with session.get(url) as resp:
-                html = await resp.text()
-                return self._extract_job_description(html=html)
-
-        async def get_descriptions(urls):
-            async with aiohttp.ClientSession() as session:
-                tasks = []
-                for url in urls:
-                    tasks.append(asyncio.ensure_future(scrape_description_async(session, url)))
-
-                job_htmls = await asyncio.gather(*tasks)
-                return job_htmls
-
-        descriptions = asyncio.run(get_descriptions(urls=job_urls))
+        htmls = scrape.get(url=job_urls)
+        descriptions = [self._extract_job_description(html=html) for html in htmls]
         assert len(descriptions) > 0
         return descriptions
 
