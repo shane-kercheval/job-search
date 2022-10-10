@@ -53,16 +53,16 @@ def create_fake_job_info_list(length: int) -> list[JobInfo]:
 
 
 @pytest.fixture(scope='function')
-def mock_job_info_list() -> list[JobInfo]:
+def fake_job_info_list() -> list[JobInfo]:
     return create_fake_job_info_list(3)
 
 
 @pytest.fixture(scope='function')
-def mock_job_object_dataframe(mock_job_info_list) -> pd.DataFrame:
+def fake_job_object_dataframe(fake_job_info_list) -> pd.DataFrame:
     return pd.DataFrame(dict(
-        company=[j.company for j in mock_job_info_list],
-        title=[j.title for j in mock_job_info_list],
-        location=[j.location for j in mock_job_info_list],
-        url=[j.url for j in mock_job_info_list],
-        description=[j.description for j in mock_job_info_list],
+        company=[j.company for j in fake_job_info_list],
+        title=[j.title for j in fake_job_info_list],
+        location=[j.location for j in fake_job_info_list],
+        url=[j.url for j in fake_job_info_list],
+        description=[j.description for j in fake_job_info_list],
     ))

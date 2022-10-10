@@ -1,5 +1,4 @@
 from datetime import datetime
-import pandas as pd
 from source.entities.job_info import JobInfo, from_dataframe, to_dataframe
 from helpsk.database import Database
 from helpsk.pandas import relocate
