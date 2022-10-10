@@ -2,11 +2,8 @@ from pytest_httpserver import HTTPServer
 from bs4 import BeautifulSoup
 import yaml
 
-
 from source.domain.jobs_scraper import JobInfo, JobScraperBase
-from source.domain.scrapers.vercel import VercelJobScraper
-from source.domain.scrapers.anaconda import AnacondaJobScraper
-from source.domain.scrapers.chime_analytics import ChimeAnalyticsJobScraper
+from source.domain.scrapers import AnacondaJobScraper, ChimeAnalyticsJobScraper, VercelJobScraper
 from tests.conftest import setup_mock_server
 
 

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-import source.domain.scrape as scrape
+import source.domain.html_scraper as html_scraper
 from source.entities.job_info import JobInfo
 
 
@@ -115,9 +115,9 @@ class JobScraperBase(ABC):
         by child classes if needed.
         """
         if self.job_objects_use_javascript:
-            html = scrape.render(url=self.url)
+            html = html_scraper.render(url=self.url)
         else:
-            html = scrape.get(url=self.url)
+            html = html_scraper.get(url=self.url)
 
         job_objects = self._extract_job_objects(html=html)
         assert len(job_objects) > 0
@@ -148,9 +148,9 @@ class JobScraperBase(ABC):
         descriptions.
         """
         if self.job_descriptions_use_javascript:
-            htmls = scrape.render(url=job_urls)
+            htmls = html_scraper.render(url=job_urls)
         else:
-            htmls = scrape.get(url=job_urls)
+            htmls = html_scraper.get(url=job_urls)
 
         descriptions = [self._extract_job_description(html=html) for html in htmls]
         assert len(descriptions) > 0

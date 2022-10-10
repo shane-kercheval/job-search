@@ -2,7 +2,7 @@ import pytest
 from http.server import HTTPServer
 from bs4 import BeautifulSoup
 from tests.conftest import setup_mock_server
-from source.domain.scrape import RequestException, get, render
+from source.domain.html_scraper import RequestException, get, render
 
 
 def test_get_type_not_supported():
