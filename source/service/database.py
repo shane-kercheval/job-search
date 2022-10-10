@@ -1,7 +1,7 @@
 from datetime import datetime
-from source.entities.job_info import JobInfo, from_dataframe, to_dataframe
 from helpsk.database import Database
 from helpsk.pandas import relocate
+from source.entities.job_info import JobInfo, from_dataframe, to_dataframe
 
 
 def datetime_now_utc() -> str:

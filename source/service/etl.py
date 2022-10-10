@@ -1,22 +1,29 @@
 from helpsk.database import Sqlite
 
-from source.service.database import save_job_infos, datetime_now_utc
 from source.domain.scrapers import AnacondaJobScraper, ChimeAnalyticsJobScraper, VercelJobScraper
+from source.service.database import save_job_infos, datetime_now_utc
 
-scrapers = [
-    AnacondaJobScraper(),
-    ChimeAnalyticsJobScraper(),
-    VercelJobScraper()
-]
 
-snapshot = datetime_now_utc()
-db = Sqlite('data/jobs.db')
+def main():
+    scrapers = [
+        AnacondaJobScraper(),
+        ChimeAnalyticsJobScraper(),
+        VercelJobScraper()
+    ]
 
-for scraper in scrapers:
-    jobs = scraper.scrape()
-    print(f'{scraper.company}: {len(jobs)}')
-    save_job_infos(
-        database=db,
-        jobs=jobs,
-        snapshot=snapshot
-    )
+    snapshot = datetime_now_utc()
+    db = Sqlite(path='data/jobs.db')
+
+    for scraper in scrapers:
+        print(f'Scraping {scraper.company} ...')
+        jobs = scraper.scrape()
+        print(f'Scraped {scraper.company}: {len(jobs)}')
+        save_job_infos(
+            database=db,
+            jobs=jobs,
+            snapshot=snapshot
+        )
+
+
+if __name__ == '__main__':
+    main()
