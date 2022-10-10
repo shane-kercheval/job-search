@@ -12,8 +12,8 @@ dependencies:
   - brotlipy=0.7.0=py310h1a28f6b_1002
   - bs4=4.11.1=hd3eb1b0_0
   - bzip2=1.0.8=h620ffc9_4
-  - ca-certificates=2022.9.24=h4653dfc_0
-  - certifi=2022.9.24=pyhd8ed1ab_0
+  - ca-certificates=2022.07.19=hca03da5_0
+  - certifi=2022.9.24=py310hca03da5_0
   - cffi=1.15.1=py310h22df2f2_0
   - charset-normalizer=2.0.4=pyhd3eb1b0_0
   - colorama=0.4.5=pyhd8ed1ab_0
@@ -23,10 +23,12 @@ dependencies:
   - fake-useragent=0.1.11=pyhd8ed1ab_0
   - flake8=4.0.1=pyhd3eb1b0_1
   - frozenlist=1.2.0=py310h1a28f6b_1
+  - greenlet=1.1.1=py310hc377ac9_0
   - icu=70.1=h6b3803e_0
   - idna=3.3=pyhd3eb1b0_0
   - importlib-metadata=4.11.3=py310hca03da5_0
   - iniconfig=1.1.1=pyhd3eb1b0_0
+  - jinja2=3.0.3=pyhd3eb1b0_0
   - libcxx=14.0.6=h848a8c0_0
   - libffi=3.4.2=hc377ac9_4
   - libiconv=1.17=he4db4b2_0
@@ -35,6 +37,7 @@ dependencies:
   - libxslt=1.1.35=ha8fb468_0
   - libzlib=1.2.12=h03a7124_3
   - lxml=4.9.1=py310h02f21da_0
+  - markupsafe=2.1.1=py310h1a28f6b_0
   - mccabe=0.7.0=pyhd3eb1b0_0
   - multidict=5.2.0=py310h1a28f6b_3
   - ncurses=6.3=h1a28f6b_3
@@ -64,6 +67,7 @@ dependencies:
   - setuptools=63.4.1=py310hca03da5_0
   - six=1.16.0=pyh6c4a22f_0
   - soupsieve=2.3.1=pyhd3eb1b0_0
+  - sqlalchemy=1.4.39=py310h1a28f6b_0
   - sqlite=3.39.3=h1058600_0
   - tk=8.6.12=hb8d0fd4_0
   - tomli=2.0.1=py310hca03da5_0

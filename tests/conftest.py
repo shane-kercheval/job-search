@@ -1,6 +1,8 @@
 import pytest
 import os
 from pytest_httpserver import HTTPServer
+import pandas as pd
+from source.entities.job_info import JobInfo
 
 
 @pytest.fixture(scope="session")
@@ -29,3 +31,45 @@ def setup_mock_server(http_server: HTTPServer):
         job_html = get_html(os.path.join(jobs_path, file))
         mock_path = os.path.join("/careers", file.removesuffix('.html'))
         http_server.expect_request(mock_path).respond_with_data(job_html)
+
+
+@pytest.fixture(scope='function')
+def mock_job_info_list() -> list[JobInfo]:
+    return [
+        JobInfo(
+            company='A',
+            title='Data Scientist',
+            location='Remote',
+            url='test.com/ds',
+            description="You'll do this and that.",
+        ),
+        JobInfo(
+            company='B',
+            title='Senior Data Scientist',
+            location='US/Remote',
+            url='test.com/sds',
+            description="You'll do this and that x2.",
+        ),
+        JobInfo(
+            company='C',
+            title='Staff Data Scientist',
+            location='West Coast / Remote',
+            url='test.com/staffds',
+            description="You'll do this and that x10.",
+        ),
+    ]
+
+
+@pytest.fixture(scope='function')
+def mock_job_object_dataframe() -> pd.DataFrame:
+    return pd.DataFrame(dict(
+        company=['A', 'B', 'C'],
+        title=['Data Scientist', 'Senior Data Scientist', 'Staff Data Scientist'],
+        location=['Remote', 'US/Remote', 'West Coast / Remote'],
+        url=['test.com/ds', 'test.com/sds', 'test.com/staffds'],
+        description=[
+            "You'll do this and that.",
+            "You'll do this and that x2.",
+            "You'll do this and that x10."
+        ],
+    ))
