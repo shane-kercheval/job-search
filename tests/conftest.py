@@ -1,7 +1,9 @@
+from typing import Optional
 import pytest
 import os
 from pytest_httpserver import HTTPServer
 import pandas as pd
+from faker import Faker
 from source.entities.job_info import JobInfo
 
 
@@ -33,43 +35,34 @@ def setup_mock_server(http_server: HTTPServer):
         http_server.expect_request(mock_path).respond_with_data(job_html)
 
 
+def create_fake_job_info(seed: Optional[int] = None) -> JobInfo:
+    fake = Faker()
+    if seed:
+        Faker.seed(seed=seed)
+    return JobInfo(
+            company=fake.company(),
+            title=fake.job(),
+            location=fake.state(),
+            url=fake.url(),
+            description=fake.pystr(),
+        )
+
+
+def create_fake_job_info_list(length: int) -> list[JobInfo]:
+    return [create_fake_job_info() for _ in range(length)]
+
+
 @pytest.fixture(scope='function')
 def mock_job_info_list() -> list[JobInfo]:
-    return [
-        JobInfo(
-            company='A',
-            title='Data Scientist',
-            location='Remote',
-            url='test.com/ds',
-            description="You'll do this and that.",
-        ),
-        JobInfo(
-            company='B',
-            title='Senior Data Scientist',
-            location='US/Remote',
-            url='test.com/sds',
-            description="You'll do this and that x2.",
-        ),
-        JobInfo(
-            company='C',
-            title='Staff Data Scientist',
-            location='West Coast / Remote',
-            url='test.com/staffds',
-            description="You'll do this and that x10.",
-        ),
-    ]
+    return create_fake_job_info_list(3)
 
 
 @pytest.fixture(scope='function')
-def mock_job_object_dataframe() -> pd.DataFrame:
+def mock_job_object_dataframe(mock_job_info_list) -> pd.DataFrame:
     return pd.DataFrame(dict(
-        company=['A', 'B', 'C'],
-        title=['Data Scientist', 'Senior Data Scientist', 'Staff Data Scientist'],
-        location=['Remote', 'US/Remote', 'West Coast / Remote'],
-        url=['test.com/ds', 'test.com/sds', 'test.com/staffds'],
-        description=[
-            "You'll do this and that.",
-            "You'll do this and that x2.",
-            "You'll do this and that x10."
-        ],
+        company=[j.company for j in mock_job_info_list],
+        title=[j.title for j in mock_job_info_list],
+        location=[j.location for j in mock_job_info_list],
+        url=[j.url for j in mock_job_info_list],
+        description=[j.description for j in mock_job_info_list],
     ))
