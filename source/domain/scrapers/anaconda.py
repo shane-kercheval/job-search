@@ -4,6 +4,10 @@ from bs4 import BeautifulSoup
 
 class AnacondaJobScraper(JobScraperBase):
     @property
+    def company(self):
+        return 'Anaconda'
+
+    @property
     def url(self):
         return 'https://anaconda.com/careers'
 

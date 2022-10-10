@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import source.domain.scrape as scrape
-from source.entities.entities import JobInfo
+from source.entities.job_info import JobInfo
 
 
 class JobScraperBase(ABC):
@@ -16,6 +16,11 @@ class JobScraperBase(ABC):
         jobs = scraper.scrape()
 
     """
+    @property
+    @abstractmethod
+    def company(self):
+        """Returns the name of the company."""
+
     @property
     @abstractmethod
     def url(self):
@@ -129,6 +134,7 @@ class JobScraperBase(ABC):
         job_url = self._create_job_url(job_path=self._extract_url(html=html))
 
         return JobInfo(
+            company=self.company,
             title=title,
             location=location,
             url=job_url,

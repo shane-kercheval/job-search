@@ -4,6 +4,10 @@ from bs4 import BeautifulSoup
 
 class VercelJobScraper(JobScraperBase):
     @property
+    def company(self):
+        return 'Vercel'
+
+    @property
     def url(self):
         return 'https://vercel.com/careers'
 

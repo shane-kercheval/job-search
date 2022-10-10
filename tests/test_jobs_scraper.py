@@ -16,6 +16,10 @@ class VercelMockJobScraper(JobScraperBase):
         self._url = url
 
     @property
+    def company(self):
+        return 'Mock'
+
+    @property
     def url(self):
         return self._url
 
@@ -57,6 +61,8 @@ def test_mock_vercel(httpserver: HTTPServer):
 
     scraper = VercelMockJobScraper(url)
     jobs = scraper.scrape()
+
+    assert all([j.company == 'Mock' for j in jobs])
 
     expected_titles = [
         'Analytics Engineer',
@@ -247,6 +253,7 @@ def test_vercel():
     scraper = VercelJobScraper()
     jobs = scraper.scrape()
     assert len(jobs) > 0
+    assert all([j.company == 'Vercel' for j in jobs])
     with open('tests/test_files/extracted_jobs/vercel_jobs.yml', 'w') as outfile:
         yaml.dump([job_to_dict(x) for x in jobs], outfile)
 
@@ -255,6 +262,7 @@ def test_anaconda():
     scraper = AnacondaJobScraper()
     jobs = scraper.scrape()
     assert len(jobs) > 0
+    assert all([j.company == 'Anaconda' for j in jobs])
     with open('tests/test_files/extracted_jobs/anaconda_jobs.yml', 'w') as outfile:
         yaml.dump([job_to_dict(x) for x in jobs], outfile)
 
@@ -263,5 +271,6 @@ def test_chime_analytics():
     scraper = ChimeAnalyticsJobScraper()
     jobs = scraper.scrape()
     assert len(jobs) > 0
+    assert all([j.company == 'Chime' for j in jobs])
     with open('tests/test_files/extracted_jobs/chime_analytics_jobs.yml', 'w') as outfile:
         yaml.dump([job_to_dict(x) for x in jobs], outfile)

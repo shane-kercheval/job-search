@@ -4,6 +4,10 @@ from source.domain.jobs_scraper import JobScraperBase
 
 class ChimeAnalyticsJobScraper(JobScraperBase):
     @property
+    def company(self):
+        return 'Chime'
+
+    @property
     def url(self):
         return 'https://careers.chime.com/c/analytics-jobs'
 
