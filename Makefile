@@ -17,3 +17,6 @@ open_coverage:
 
 data_extract:
 	PYTHONPATH=. python source/service/etl.py
+
+streamlit:
+	PYTHONPATH=. python -m streamlit run source/entrypoints/streamlit_app.py
