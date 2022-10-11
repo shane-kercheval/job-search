@@ -1,32 +1,65 @@
-import os
 from pytest_httpserver import HTTPServer
-from source.jobs_extractors import scrape_vercel
+from bs4 import BeautifulSoup
+import yaml
+
+from source.domain.jobs_scraper import JobInfo, JobScraperBase
+from source.domain.scrapers import AnacondaJobScraper, ChimeAnalyticsJobScraper, VercelJobScraper
+from tests.conftest import setup_mock_server
+
+
+class VercelMockJobScraper(JobScraperBase):
+    def __init__(self, url) -> None:
+        super().__init__()
+        self._url = url
+
+    @property
+    def company(self):
+        return 'Mock'
+
+    @property
+    def url(self):
+        return self._url
+
+    def _extract_job_objects(self, html: str) -> list[str]:
+        soup = BeautifulSoup(html, 'html.parser')
+        job_objects = soup.select('a[class^=job-card_jobCard]')
+        assert len(job_objects) > 0
+        return [str(x) for x in job_objects]
+
+    def _extract_title(self, html: str) -> str:
+        soup = BeautifulSoup(html, 'html.parser')
+        title_object = soup.select('h3')
+        assert len(title_object) == 1
+        return title_object[0].text.strip()
+
+    def _extract_location(self, html: str) -> str:
+        soup = BeautifulSoup(html, 'html.parser')
+        location_object = soup.select('h4')
+        assert len(location_object) == 1
+        return location_object[0].text.strip()
+
+    def _extract_url(self, html: str) -> str:
+        soup = BeautifulSoup(html, 'html.parser')
+        tag = soup.select('a')
+        assert len(tag) == 1
+        return tag[0].attrs['href']
+
+    def _extract_job_description(self, html: str) -> str:
+        soup_desc = BeautifulSoup(html, 'html.parser')
+        return str(soup_desc.select('section[class^=details_container]')[0])
+
+    def _create_job_url(self, job_path: str) -> str:
+        return self.url + job_path.replace('/careers', '')
 
 
 def test_mock_vercel(httpserver: HTTPServer):
-    ####
-    # Set up mock server using html files in `vercel_clone`; I've copied the files locally so
-    # we can test on local http-server. If the html ever changes on Vercel's website, consider
-    # retaining the current function so that we have an example that is tested from local files.
-    # The main advantage is that we can test changes more quickly (e.g. adding additional fields
-    # to JobInfo object) compared with hitting external server each time.)
-    ####
-    def get_html(path: str) -> str:
-        with open(path, 'r') as handle:
-            return handle.read()
-    # setup mock server for /careers page
-    careers_html = get_html('tests/test_files/vercel_clone/vercel_careers_clone.html')
-    httpserver.expect_request("/careers").respond_with_data(careers_html)
-    # setup mock server for each of the job's pages
-    jobs_path = 'tests/test_files/vercel_clone/careers'
-    html_files = os.listdir(jobs_path)
-    for file in html_files:
-        job_html = get_html(os.path.join(jobs_path, file))
-        mock_path = os.path.join("/careers", file.removesuffix('.html'))
-        httpserver.expect_request(mock_path).respond_with_data(job_html)
-
+    setup_mock_server(httpserver)
     url = httpserver.url_for("/careers")
-    jobs = scrape_vercel(url=url)
+
+    scraper = VercelMockJobScraper(url)
+    jobs = scraper.scrape()
+
+    assert all([j.company == 'Mock' for j in jobs])
 
     expected_titles = [
         'Analytics Engineer',
@@ -173,8 +206,8 @@ def test_mock_vercel(httpserver: HTTPServer):
         'http://127.0.0.1:8000/careers/product-manager-usage-and-billing-us-4327432004',
         'http://127.0.0.1:8000/careers/sales-development-lead-apac-4423850004',
         'http://127.0.0.1:8000/careers/sales-development-representative-enterprise-us-4586706004',
-        'http://127.0.0.1:8000/careers/sales-development-representative-enterprise-europe-uk-4646256004',
-        'http://127.0.0.1:8000/careers/sales-development-representative-manager-east-us-4581381004',
+        'http://127.0.0.1:8000/careers/sales-development-representative-enterprise-europe-uk-4646256004',  # noqa
+        'http://127.0.0.1:8000/careers/sales-development-representative-manager-east-us-4581381004',  # noqa
         'http://127.0.0.1:8000/careers/sales-development-representative-mid-market-us-4414553004',
         'http://127.0.0.1:8000/careers/sales-engineer-us-4162371004',
         'http://127.0.0.1:8000/careers/sales-engineer-apac-4159197004',
@@ -201,5 +234,40 @@ def test_mock_vercel(httpserver: HTTPServer):
         'http://127.0.0.1:8000/careers/visual-designer-brand-marketing-us-4536670004'
     ]
     assert expected_urls == [x.url for x in jobs]
-
     assert all([x.description is not None for x in jobs])
+
+
+def job_to_dict(job: JobInfo) -> list[dict]:
+    return dict(
+        title=job.title,
+        location=job.location,
+        url=job.url,
+        description=job.description[0:20]
+    )
+
+
+def test_vercel():
+    scraper = VercelJobScraper()
+    jobs = scraper.scrape()
+    assert len(jobs) > 0
+    assert all([j.company == 'Vercel' for j in jobs])
+    with open('tests/test_files/extracted_jobs/vercel_jobs.yml', 'w') as outfile:
+        yaml.dump([job_to_dict(x) for x in jobs], outfile)
+
+
+def test_anaconda():
+    scraper = AnacondaJobScraper()
+    jobs = scraper.scrape()
+    assert len(jobs) > 0
+    assert all([j.company == 'Anaconda' for j in jobs])
+    with open('tests/test_files/extracted_jobs/anaconda_jobs.yml', 'w') as outfile:
+        yaml.dump([job_to_dict(x) for x in jobs], outfile)
+
+
+def test_chime_analytics():
+    scraper = ChimeAnalyticsJobScraper()
+    jobs = scraper.scrape()
+    assert len(jobs) > 0
+    assert all([j.company == 'Chime' for j in jobs])
+    with open('tests/test_files/extracted_jobs/chime_analytics_jobs.yml', 'w') as outfile:
+        yaml.dump([job_to_dict(x) for x in jobs], outfile)
