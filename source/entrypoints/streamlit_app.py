@@ -33,4 +33,3 @@ st.subheader(f"{selected_job.company} ({selected_job.location})")
 st.markdown(f'[{selected_job.url}]({selected_job.url})')
 st.markdown("""---""")
 st.markdown(selected_job.description, unsafe_allow_html=True)
-

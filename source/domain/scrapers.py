@@ -13,7 +13,7 @@ class VercelJobScraper(JobScraperBase):
 
     def _extract_job_objects(self, html: str) -> list[str]:
         soup = BeautifulSoup(html, 'html.parser')
-        job_objects = soup.select('a[class^=job-card_jobCard]')
+        job_objects = soup.select('a[class^=job-card_]')
         assert len(job_objects) > 0
         return [str(x) for x in job_objects]
 
@@ -88,14 +88,7 @@ class AnacondaJobScraper(JobScraperBase):
         return job_path
 
 
-class ChimeAnalyticsJobScraper(JobScraperBase):
-    @property
-    def company(self):
-        return 'Chime'
-
-    @property
-    def url(self):
-        return 'https://careers.chime.com/c/analytics-jobs'
+class ChimeJobScraper(JobScraperBase):
 
     @property
     def job_objects_use_javascript(self):
@@ -132,7 +125,27 @@ class ChimeAnalyticsJobScraper(JobScraperBase):
 
     def _extract_job_description(self, html: str) -> str:
         soup = BeautifulSoup(html, 'html.parser')
-        return str(soup.select('div.job-desc')[0])
+        return str(soup.select('section[class^=job-description]')[0])
 
     def _create_job_url(self, job_path: str) -> str:
         return job_path
+
+
+class ChimeAnalyticsJobScraper(ChimeJobScraper):
+    @property
+    def company(self):
+        return 'Chime (Analytics)'
+
+    @property
+    def url(self):
+        return 'https://careers.chime.com/c/analytics-jobs'
+
+
+class ChimeDataScienceJobScraper(ChimeJobScraper):
+    @property
+    def company(self):
+        return 'Chime (DS & ML)'
+
+    @property
+    def url(self):
+        return 'https://careers.chime.com/c/data-science-machine-learning-jobs'

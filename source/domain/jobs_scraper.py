@@ -48,6 +48,7 @@ class JobScraperBase(ABC):
         """
         TBD
         """
+
     @abstractmethod
     def _extract_job_description(self, html: str) -> str:
         """
