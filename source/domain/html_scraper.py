@@ -78,6 +78,10 @@ def render(url: str, use_selenium: bool = False) -> str | list:
             if use_selenium:
                 from selenium import webdriver  # noqa
                 from selenium.webdriver.chrome.options import Options
+                # from selenium.webdriver.common.by import By
+                # from selenium.webdriver.support import expected_conditions as EC
+                # from selenium.webdriver.support.ui import WebDriverWait
+
                 options = Options()
                 options.add_argument('--headless')
                 options.add_argument('--no-sandbox')
@@ -87,6 +91,9 @@ def render(url: str, use_selenium: bool = False) -> str | list:
                 driver = webdriver.Chrome(chrome_options=options)
                 driver.implicitly_wait(20)
                 driver.get(url)
+                # wait(driver, 10)
+                # import time
+                # time.sleep(3)
                 html = driver.page_source
                 return html
             else:

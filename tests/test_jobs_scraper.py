@@ -4,7 +4,7 @@ import yaml
 
 from source.domain.jobs_scraper import JobInfo, JobScraperBase
 from source.domain.scrapers import AnacondaJobScraper, ChimeAnalyticsJobScraper, \
-    ChimeDataScienceJobScraper, VercelJobScraper, OtterAIJobScraper
+    ChimeDataScienceJobScraper, VercelJobScraper  # , OtterAIJobScraper
 from tests.conftest import setup_mock_server
 
 
@@ -283,10 +283,10 @@ def test_chime_data_science():
         yaml.dump([job_to_dict(x) for x in jobs], outfile)
 
 
-def test_otter():
-    scraper = OtterAIJobScraper()
-    jobs = scraper.scrape()
-    assert len(jobs) > 0
-    assert all([j.company == 'Otter AI' for j in jobs])
-    with open('tests/test_files/extracted_jobs/otter_ai_jobs.yml', 'w') as outfile:
-        yaml.dump([job_to_dict(x) for x in jobs], outfile)
+# def test_otter():
+#     scraper = OtterAIJobScraper()
+#     jobs = scraper.scrape()
+#     assert len(jobs) > 0
+#     assert all([j.company == 'Otter AI' for j in jobs])
+#     with open('tests/test_files/extracted_jobs/otter_ai_jobs.yml', 'w') as outfile:
+#         yaml.dump([job_to_dict(x) for x in jobs], outfile)

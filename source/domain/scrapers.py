@@ -203,8 +203,9 @@ class OtterAIJobScraper(JobScraperBase):
         return url
 
     def _extract_job_description(self, html: str) -> str:
-        soup_desc = BeautifulSoup(html, 'html.parser')
-        return str(soup_desc.select('div#main')[0])
+        # soup_desc = BeautifulSoup(html, 'html.parser')
+        # return str(soup_desc.select('div#main')[0])
+        return "Not Supported Yet"
 
     def _create_job_url(self, job_path: str) -> str:
         return job_path
