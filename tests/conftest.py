@@ -9,7 +9,7 @@ from source.entities.job_info import JobInfo
 
 @pytest.fixture(scope="session")
 def httpserver_listen_address():
-    return ("127.0.0.1", 8000)
+    return ("0.0.0.0", 8000)
 
 
 def setup_mock_server(http_server: HTTPServer):

@@ -1,0 +1,15 @@
+aiohttp
+beautifulsoup4
+coverage
+faker
+flake8
+helpsk
+httpserver
+pandas
+pytest
+pytest_httpserver
+PyYAML
+requests
+requests_html
+selenium
+SQLAlchemy

@@ -49,7 +49,7 @@ def get(url) -> object:
         raise ValueError(f'Type={type(url)}. Only values of type str or list[str] are permitted.')
 
 
-def render(url) -> object:
+def render(url: str, use_selenium: bool = False) -> str | list:
     """
     This function scrapes the HTML from either a single url (if a single string is passed in) or a
     set of urls (asynchronously) if a list of strings are passed in.
@@ -57,6 +57,14 @@ def render(url) -> object:
     Specifically, `render` scrapes the HTML after any JavaScript has rendered (whereas the `get`
     function scrapes the HTML before any Javascript has rendered). `get` is faster and prefered
     when the HTML of interest isn't loaded from JavasScript.
+
+    Args:
+        url: the url to scrape
+        use_selenium: in some cases, HTMLSessions fails to render JavaScript. I'm not sure why. But
+            selenium seems to work, although it seems to be much slower. If possible, avoid using
+            selenium. You also must have Chrome installed.
+
+            Currently only an option when passing a single url.
     """
     import warnings
     with warnings.catch_warnings():
@@ -65,12 +73,20 @@ def render(url) -> object:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         if isinstance(url, str):
-            with HTMLSession() as session:
-                response = session.get(url=url)
-                if response.status_code != 200:
-                    raise RequestException(f"status-code: {response.status_code}")
-                response.html.render(timeout=20)
-                return response.html.html
+            if use_selenium:
+                from selenium import webdriver  # noqa
+                driver = webdriver.Chrome()
+                driver.implicitly_wait(20)
+                driver.get(url)
+                html = driver.page_source
+                return html
+            else:
+                with HTMLSession() as session:
+                    response = session.get(url=url)
+                    if response.status_code != 200:
+                        raise RequestException(f"status-code: {response.status_code}")
+                    response.html.render(timeout=90)
+                    return response.html.html
         elif isinstance(url, Iterable):
             urls = url; del url  # noqa
 

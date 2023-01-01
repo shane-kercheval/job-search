@@ -70,6 +70,15 @@ class JobScraperBase(ABC):
         return False
 
     @property
+    def job_objects_use_selenium(self):
+        """
+        Occasionally, HTMLSession in html_scraper.render does not properly render the JavaScript,
+        but Selenium seems to work. However, Selenium is much slower and should be avoided when
+        possible.
+        """
+        return False
+
+    @property
     def job_descriptions_use_javascript(self):
         """
         If the job-description web-pages uses Javascript to load information (e.g. from external
@@ -116,7 +125,7 @@ class JobScraperBase(ABC):
         by child classes if needed.
         """
         if self.job_objects_use_javascript:
-            html = html_scraper.render(url=self.url)
+            html = html_scraper.render(url=self.url, use_selenium=self.job_objects_use_selenium)
         else:
             html = html_scraper.get(url=self.url)
 
