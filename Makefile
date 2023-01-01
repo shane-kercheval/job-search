@@ -15,7 +15,7 @@ docker_rebuild:
 
 docker_zsh:
 	# run container and open up zsh command-line
-	docker exec -it python-helpers-bash-1 /bin/zsh
+	docker exec -it job-search-bash-1 /bin/zsh
 
 docker_tests:
 	# run tests within docker container

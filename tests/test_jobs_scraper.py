@@ -3,7 +3,8 @@ from bs4 import BeautifulSoup
 import yaml
 
 from source.domain.jobs_scraper import JobInfo, JobScraperBase
-from source.domain.scrapers import AnacondaJobScraper, ChimeAnalyticsJobScraper, VercelJobScraper
+from source.domain.scrapers import AnacondaJobScraper, ChimeAnalyticsJobScraper, \
+    ChimeDataScienceJobScraper, VercelJobScraper
 from tests.conftest import setup_mock_server
 
 
@@ -268,6 +269,15 @@ def test_chime_analytics():
     scraper = ChimeAnalyticsJobScraper()
     jobs = scraper.scrape()
     assert len(jobs) > 0
-    assert all([j.company == 'Chime' for j in jobs])
+    assert all([j.company == 'Chime (Analytics)' for j in jobs])
     with open('tests/test_files/extracted_jobs/chime_analytics_jobs.yml', 'w') as outfile:
+        yaml.dump([job_to_dict(x) for x in jobs], outfile)
+
+
+def test_chime_data_science():
+    scraper = ChimeDataScienceJobScraper()
+    jobs = scraper.scrape()
+    assert len(jobs) > 0
+    assert all([j.company == 'Chime (DS & ML)' for j in jobs])
+    with open('tests/test_files/extracted_jobs/chime_ds_jobs.yml', 'w') as outfile:
         yaml.dump([job_to_dict(x) for x in jobs], outfile)
