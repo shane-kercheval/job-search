@@ -93,6 +93,15 @@ class JobScraperBase(ABC):
         """
         return False
 
+    @property
+    def job_descriptions_use_selenium(self):
+        """
+        Occasionally, HTMLSession in html_scraper.render does not properly render the JavaScript,
+        but Selenium seems to work. However, Selenium is much slower and should be avoided when
+        possible.
+        """
+        return False
+
     def _create_job_url(self, job_path: str) -> str:
         """
         This function returns the url to job description. It takes the job_path which is the url
@@ -158,7 +167,15 @@ class JobScraperBase(ABC):
         descriptions.
         """
         if self.job_descriptions_use_javascript:
-            htmls = html_scraper.render(url=job_urls)
+            if self.job_descriptions_use_selenium:
+                # need to do this syncronously because .render does not yet support selenium when
+                # using multiple urls asynchronously, it calls AsyncHTMLSession.get
+                # it could probably be refactored to work
+                htmls = [
+                    html_scraper.render(url=x, use_selenium=True) for x in job_urls
+                ]
+            else:
+                htmls = html_scraper.render(url=job_urls, use_selenium=False)
         else:
             htmls = html_scraper.get(url=job_urls)
 

@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
     google-chrome-stable \
     --no-install-recommends
 
-RUN wget https://chromedriver.storage.googleapis.com/85.0.4183.87/chromedriver_linux64.zip && \
+RUN wget https://chromedriver.storage.googleapis.com/108.0.5359.71/chromedriver_linux64.zip && \
     unzip chromedriver_linux64.zip && \
     rm chromedriver_linux64.zip && \
     chmod +x chromedriver && \

@@ -58,6 +58,8 @@ def render(url: str, use_selenium: bool = False) -> str | list:
     function scrapes the HTML before any Javascript has rendered). `get` is faster and prefered
     when the HTML of interest isn't loaded from JavasScript.
 
+    TODO: implement Selenium asynchronously
+
     Args:
         url: the url to scrape
         use_selenium: in some cases, HTMLSessions fails to render JavaScript. I'm not sure why. But
@@ -75,7 +77,14 @@ def render(url: str, use_selenium: bool = False) -> str | list:
         if isinstance(url, str):
             if use_selenium:
                 from selenium import webdriver  # noqa
-                driver = webdriver.Chrome()
+                from selenium.webdriver.chrome.options import Options
+                options = Options()
+                options.add_argument('--headless')
+                options.add_argument('--no-sandbox')
+                options.add_argument("--disable-setuid-sandbox")
+                # options.add_argument('--ignore-ssl-errors=yes')
+                # options.add_argument('--ignore-certificate-errors')
+                driver = webdriver.Chrome(chrome_options=options)
                 driver.implicitly_wait(20)
                 driver.get(url)
                 html = driver.page_source
