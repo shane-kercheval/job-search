@@ -48,6 +48,7 @@ class JobScraperBase(ABC):
         """
         TBD
         """
+
     @abstractmethod
     def _extract_job_description(self, html: str) -> str:
         """
@@ -69,6 +70,15 @@ class JobScraperBase(ABC):
         return False
 
     @property
+    def job_objects_use_selenium(self):
+        """
+        Occasionally, HTMLSession in html_scraper.render does not properly render the JavaScript,
+        but Selenium seems to work. However, Selenium is much slower and should be avoided when
+        possible.
+        """
+        return False
+
+    @property
     def job_descriptions_use_javascript(self):
         """
         If the job-description web-pages uses Javascript to load information (e.g. from external
@@ -80,6 +90,15 @@ class JobScraperBase(ABC):
 
         - Returning `False` from this property will use use requests.get
         - Returning `True` from this property will use use requests_html.HTMLSession
+        """
+        return False
+
+    @property
+    def job_descriptions_use_selenium(self):
+        """
+        Occasionally, HTMLSession in html_scraper.render does not properly render the JavaScript,
+        but Selenium seems to work. However, Selenium is much slower and should be avoided when
+        possible.
         """
         return False
 
@@ -115,7 +134,7 @@ class JobScraperBase(ABC):
         by child classes if needed.
         """
         if self.job_objects_use_javascript:
-            html = html_scraper.render(url=self.url)
+            html = html_scraper.render(url=self.url, use_selenium=self.job_objects_use_selenium)
         else:
             html = html_scraper.get(url=self.url)
 
@@ -148,7 +167,15 @@ class JobScraperBase(ABC):
         descriptions.
         """
         if self.job_descriptions_use_javascript:
-            htmls = html_scraper.render(url=job_urls)
+            if self.job_descriptions_use_selenium:
+                # need to do this syncronously because .render does not yet support selenium when
+                # using multiple urls asynchronously, it calls AsyncHTMLSession.get
+                # it could probably be refactored to work
+                htmls = [
+                    html_scraper.render(url=x, use_selenium=True) for x in job_urls
+                ]
+            else:
+                htmls = html_scraper.render(url=job_urls, use_selenium=False)
         else:
             htmls = html_scraper.get(url=job_urls)
 

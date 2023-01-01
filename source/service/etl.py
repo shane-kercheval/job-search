@@ -1,6 +1,7 @@
 from helpsk.database import Sqlite
 
-from source.domain.scrapers import AnacondaJobScraper, ChimeAnalyticsJobScraper, VercelJobScraper
+from source.domain.scrapers import AnacondaJobScraper, ChimeAnalyticsJobScraper, \
+    ChimeDataScienceJobScraper, VercelJobScraper
 from source.service.database import save_job_infos, datetime_now_utc
 
 
@@ -8,6 +9,7 @@ def main():
     scrapers = [
         AnacondaJobScraper(),
         ChimeAnalyticsJobScraper(),
+        ChimeDataScienceJobScraper(),
         VercelJobScraper()
     ]
 
